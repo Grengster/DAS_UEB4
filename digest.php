@@ -1,4 +1,5 @@
 <?php
+session_start();
 $realm = 'Geschützter Bereich';
 
 // Benutzer => Passwort
@@ -11,28 +12,29 @@ if (empty($_SERVER['PHP_AUTH_DIGEST'])) {
            '",qop="auth",nonce="' . uniqid() . '",opaque="' . md5($realm) .
            '"');
 
-    die('Text, der gesendet wird, falls der Benutzer auf Abbrechen drückt');
+    echo "Authentification cancelled. Click to <a href='./index.php' class='logout-button'>return to Login</a>";
 }
+else
+{
 
-// Analysieren der Variable PHP_AUTH_DIGEST
-if (!($daten = http_digest_parse($_SERVER['PHP_AUTH_DIGEST'])) ||
-    !isset($benutzer[$daten['username']]))
-    die('Falsche Zugangsdaten!');
-
-// Erzeugen einer gültigen Antwort
-$A1 = md5($daten['username'] . ':' . $realm . ':' .
-          $benutzer[$daten['username']]);
-$A2 = md5($_SERVER['REQUEST_METHOD'] . ':' . $daten['uri']);
-$gueltige_antwort = md5($A1 . ':' . $daten['nonce'] . ':' . $daten['nc'] .
-                        ':' . $daten['cnonce'] . ':' . $daten['qop'] . ':' .
-                        $A2);
-
-if ($daten['response'] != $gueltige_antwort)
-    die('Falsche Zugangsdaten!');
-
-// OK, gültige Benutzername & Passwort
-echo 'Sie sind angemeldet als: ' . $daten['username'];
-echo "Click to <a href='./logout.php' class='logout-button'>Logout</a>";
+    // Analysieren der Variable PHP_AUTH_DIGEST
+    if (!($daten = http_digest_parse($_SERVER['PHP_AUTH_DIGEST'])))
+    {
+        $_SESSION["errorMessage"] = "Error with digest parse";
+        header("Location: ./index.php");
+    }
+    else
+    {        
+        require_once (__DIR__ . "/Users.php");
+        $member = new Users();
+        $isLoggedIn = $member->processDigestAuth($daten, $realm);
+        if (! $isLoggedIn) {
+            $_SESSION["errorMessage"] = "Invalid Credentials";
+        }
+        header("Location: ./index.php");
+        exit();
+    }
+}
 
 // Funktion zum analysieren der HTTP-Auth-Header
 function http_digest_parse($txt) {
