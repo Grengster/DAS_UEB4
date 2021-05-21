@@ -6,8 +6,14 @@ if (!empty($_POST["login"])) {
     $password = filter_var($_POST["password"], FILTER_SANITIZE_STRING);
     require_once (__DIR__ . "/Users.php");
     
+    $remember = false;
+    if (isset($_POST["remember"])) 
+    {
+        $remember = true;
+    }
+    
     $member = new Users();
-    $isLoggedIn = $member->processLogin($username, $password);
+    $isLoggedIn = $member->processLogin($username, $password, $remember);
     if (! $isLoggedIn) {
         $_SESSION["errorMessage"] = "Invalid Credentials";
     }

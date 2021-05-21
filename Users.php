@@ -1,41 +1,40 @@
 <?php
 class Users
 {
-
-    private $dbConn;
-
-    private $ds;
-
     function __construct()
     {
-        require_once "DataSource.php";
-        $this->ds = new DataSource();
-    }
-
-    function getMemberById($memberId)
-    {
-        $query = "select * FROM registered_users WHERE id = ?";
-        $paramType = "i";
-        $paramArray = array($memberId);
-        $memberResult = $this->ds->select($query, $paramType, $paramArray);
-        
-        return $memberResult;
     }
     
-    public function processLogin($username, $password) {
+    public function processLogin($username, $password, $remember) {
         $passwordHash = md5($password);
-        $query = "select * FROM registered_users WHERE user_name = ? AND password = ?";
-        $paramType = "ss";
-        $paramArray = array($username, $passwordHash);
-        $memberResult = $this->ds->select($query, $paramType, $paramArray);
-        if(!empty($memberResult)) {
-            $_SESSION["userId"] = $memberResult[0]["id"];
-            $_SESSION["userName"] = $memberResult[0]["user_name"];
-            return true;
+        
+        $benutzer = array('Max' => '81dc9bdb52d04dc20036dbd8313ed055', 'gast' => 'd4061b1486fe2da19dd578e8d970f7eb');
+        if($username === 'Max')
+        {
+            if(!($passwordHash === $benutzer['Max']))
+            {
+                return false;
+            }
         }
+        if($username === 'gast')
+        {
+            if(!($passwordHash === $benutzer['gast']))
+            {
+                return false;
+            }
+        }
+        
+        $_SESSION["userName"] = $username;
+
+        if ($remember === true)
+        {
+            setcookie("username", $_SESSION["userName"], time() + 600);
+        }
+
+        return true;
     }
     
-    public function processDigestAuth($daten, $realm) {
+    public function processDigestAuth($daten, $realm, $remember) {
         $benutzer = array('Max' => '1234', 'gast' => 'gast');
         
         if(!empty($benutzer)) {
@@ -50,15 +49,15 @@ class Users
             {
                 return false;
             }
-            
-            $query = "select id FROM registered_users WHERE user_name = ?";
-            $paramType = "s";
-            $paramArray = array($daten['username']);
-            $memberResult = $this->ds->select($query, $paramType, $paramArray);
 
             // OK, gültige Benutzername & Passwort
-            $_SESSION["userId"] = $memberResult[0]["id"];
             $_SESSION["userName"] = $daten['username'];
+            
+            if ($remember === true)
+            {
+                setcookie("username", $_SESSION["userName"], time() + 600);
+            }
+            
             return true;
         }
     }

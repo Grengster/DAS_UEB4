@@ -24,10 +24,16 @@ else
         header("Location: ./index.php");
     }
     else
-    {        
+    {   
+        $remember = false;
+        if (isset($_POST["rememberDig"])) 
+        {
+            $remember = true;
+        }
+        
         require_once (__DIR__ . "/Users.php");
         $member = new Users();
-        $isLoggedIn = $member->processDigestAuth($daten, $realm);
+        $isLoggedIn = $member->processDigestAuth($daten, $realm, $remember);
         if (! $isLoggedIn) {
             $_SESSION["errorMessage"] = "Invalid Credentials";
         }

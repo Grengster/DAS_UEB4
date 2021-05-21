@@ -63,6 +63,18 @@ body {
   font-size: 1.1em;
 }
 
+.btnLogout {
+  margin-top: 10em;
+  padding: 13px;
+  background-color: #5d9cec;
+  color: #f5f7fa;
+  cursor: pointer;
+  border-radius: 4px;
+  width: 100%;
+  border: #5791da 1px solid;
+  font-size: 1.1em;
+}
+
 .response-text {
   max-width: 380px;
   font-size: 1.5em;

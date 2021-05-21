@@ -1,10 +1,13 @@
 <html>
 <head>
     <meta name="google-signin-client_id" content="960318417031-3rai1932j0342j4sbf5trrbd6vv6kgf5.apps.googleusercontent.com">
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
 <?php
 session_start();
-if(!empty($_SESSION["userId"])) {
+if(isset($_COOKIE["username"])){
+    $_SESSION["userName"] = $_COOKIE["username"];
+}
+
+if(!empty($_SESSION["userName"])) {
     require_once 'dashboard.php';
 } else {
     require_once 'login.php';
@@ -46,6 +49,10 @@ if(!empty($_SESSION["userId"])) {
                     </div>
                 </div>
                 <div class=field-column>
+                    <label for="remember">Remember me:</label>
+                    <input type="checkbox" name="remember" id="remember" value="true">
+                </div>
+                <div class=field-column>
                     <div>
                         <input type="submit" name="login" value="Login"
                         class="btnLogin"></span>
@@ -55,31 +62,84 @@ if(!empty($_SESSION["userId"])) {
         </form>
         <form action="digest.php" method="post" id="DgstLogin">
             <div class="demo-table">
-                <input type="submit" name="dgstlogin" value="Digest Authentification"
-                class="btnLogin"></span>
+                <div class=field-column>
+                    <input type="submit" name="dgstlogin" value="Digest Authentification"
+                    class="btnLogin"></span>
+                </div>
+                <div class=field-column>
+                    <div class=field-column>
+                    <label for="rememberDig">Remember me:</label>
+                    <input type="checkbox" name="rememberDig" id="rememberDig" value="true">
+                </div>
+                </div>
             </div>
         </form>
         <div class="demo-table">
-            <div class="g-signin2" data-onsuccess="onSignIn"></div>
+            <button class="btnLogin" onclick="hello('google').login()">Google Login</button>
+        </div>
+        <div class="demo-table">
+            <button class="btnLogin" onclick="hello('google').logout()">Google Logout</button>
+        </div>
+        <div id="logTab" class="demo-table">
+        </div>
+        <div class="demo-table">
+            <form action="csrfsubmit.php" method="post" >
+                <input type="hidden" name="CSRFToken" value="MYJRGQTmzM12WN1GEjD2OQOMlOEjDjM4wMwmmOYYYNwxENWAl2UMQVGZ4IYhTDGZ4YJMDZZwjiwhYWJNE==">
+                <label for="fname">First name:</label><br>
+                <input type="text" id="fname" name="fname" required><br>
+                <label for="lname">Last name:</label><br>
+                <input type="text" id="lname" name="lname" required>
+                <input type="submit" class="btnLogin" value="Submit"/>
+            </form>
+            
+            <form action="csrfsubmit.php" method="post" >
+                <input type="hidden" name="CSRFToken" value="mDRYQIDNNOJlYGZjjMh1hM2WMQOjVwNJWm4=YGDZTGi=ENY1GMZzMwETO2YjEwZ4JM4xYwQ2mlEAYUwDOWM">
+                <label for="fname">First name:</label><br>
+                <input type="text" id="1fname" name="fname" required><br>
+                <label for="lname">Last name:</label><br>
+                <input type="text" id="lname" name="lname" required>
+                <input type="submit" class="btnLogin" value="Submit with wrong Token"/>
+            </form>
         </div>
     </div>
+    
+    <script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
 </body>
 </html>
+<script src="hello.all.js"></script>
 <script>
-    function onSignIn(googleUser) {
-        var profile = googleUser.getBasicProfile();
-        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-        console.log('Name: ' + profile.getName());
-        console.log('Image URL: ' + profile.getImageUrl());
-        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-        
-        <?php
-        $_SESSION["userName"] = profile.getName();
-        
-        header("Location: ./index.php");
-        ?>
-    }
-    
+  hello.init({
+    google: "960318417031-3rai1932j0342j4sbf5trrbd6vv6kgf5.apps.googleusercontent.com"     // not real id
+  });
+</script>
+<script>
+
+    hello.on('auth.login', function (auth) {
+
+      // add a greeting and access the thumbnail and name from
+      // the authorized response
+
+      hello(auth.network).api('/me').then(function (resp) {
+        var test = document.getElementById("logTab");
+        var lab = document.getElementById("loggedUser");
+        if (lab == null){
+            var lab = document.createElement("div");
+            lab.id = "loggedUser";
+            lab.innerHTML = '<img src="' + resp.thumbnail + '" /> Welcome ' + resp.name;
+            test.appendChild(lab);
+        }
+      });
+    });
+
+    // remove the greeting when we log out
+
+    hello.on('auth.logout', function () {
+      var lab = document.getElementById("loggedUser");
+      if (lab != null) lab.outerHTML = "";
+    });
+
+</script>
+<script>
     function validate() {
         var $valid = true;
         document.getElementById("user_info").innerHTML = "";
@@ -99,4 +159,4 @@ if(!empty($_SESSION["userId"])) {
         }
         return $valid;
     }
-    </script>
+</script>
