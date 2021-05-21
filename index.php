@@ -1,5 +1,7 @@
 <html>
 <head>
+    <meta name="google-signin-client_id" content="960318417031-3rai1932j0342j4sbf5trrbd6vv6kgf5.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
 <?php
 session_start();
 if(!empty($_SESSION["userId"])) {
@@ -57,10 +59,27 @@ if(!empty($_SESSION["userId"])) {
                 class="btnLogin"></span>
             </div>
         </form>
+        <div class="demo-table">
+            <div class="g-signin2" data-onsuccess="onSignIn"></div>
+        </div>
     </div>
 </body>
 </html>
 <script>
+    function onSignIn(googleUser) {
+        var profile = googleUser.getBasicProfile();
+        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+        console.log('Name: ' + profile.getName());
+        console.log('Image URL: ' + profile.getImageUrl());
+        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+        
+        <?php
+        $_SESSION["userName"] = profile.getName();
+        
+        header("Location: ./index.php");
+        ?>
+    }
+    
     function validate() {
         var $valid = true;
         document.getElementById("user_info").innerHTML = "";

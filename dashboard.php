@@ -1,6 +1,6 @@
 <?php
 
-if (! empty($_SESSION["userId"])) {
+/*if (! empty($_SESSION["userId"])) {
     require_once __DIR__ . '/Users.php';
     $member = new Users();
     $memberResult = $member->getMemberById($_SESSION["userId"]);
@@ -9,6 +9,13 @@ if (! empty($_SESSION["userId"])) {
     } else {
         $displayName = $memberResult[0]["user_name"];
     }
+}*/
+if (! empty($_SESSION["userName"])) {
+    $displayName = $_SESSION["userName"];
+}
+else
+{
+    $displayName = "you mytserious person";
 }
 ?>
 <html>
